@@ -3,18 +3,18 @@
     <div class="login_box">
       <!--头像区域-->
       <div class="avatar_box">
-        <img src="@/assets/logo.png" alt="">
+        <img src="@/assets/img/logo.png" alt="">
       </div>
       <!--登陆表单区-->
       <el-form ref="loginFormRef" :model="loginForm" :rules="loginFormRules" label-width="0px" class="login_form"
                v-loading="loading">
         <!-- 用户名-->
         <el-form-item prop="username">
-          <el-input v-model="loginForm.username" prefix-icon="iconfont icon-yonghuming" placeholder="用户名"></el-input>
+          <el-input v-model="loginForm.username" prefix-icon="iconfont icon-user" placeholder="用户名"></el-input>
         </el-form-item>
         <!-- 密码-->
         <el-form-item prop="password">
-          <el-input v-model="loginForm.password" prefix-icon="iconfont icon-zu" placeholder="密码" type="password"></el-input>
+          <el-input v-model="loginForm.password" prefix-icon="iconfont icon-lock_fill" placeholder="密码" type="password"></el-input>
         </el-form-item>
         <!--按钮区域-->
         <el-form-item class="btn">
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import {request} from '@/network/request'
+import {postLogin} from '@/network/request'
 export default {
   name: "Login",
   data(){
@@ -62,12 +62,11 @@ export default {
       this.$refs.loginFormRef.validate(valid=>{
         if(!valid) return;
         this.loading = true;
-        request({
+        postLogin({
           method: "post",
           url: '/login',
           data:this.loginForm
         }).then(res=>{
-          console.log(res);
           if(res.data.status === true){
             this.$message({
               showClose: true,
@@ -109,7 +108,7 @@ export default {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .login_container{
   background-color: #2b4b6b;
   height: 100%;
