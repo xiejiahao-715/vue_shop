@@ -17,6 +17,7 @@ const routes = [
     component: Login
   },
   {
+    name:'home',
     path:'/home',
     component: Home,
     redirect: '/welcome',
@@ -26,8 +27,13 @@ const routes = [
         component: Welcome
       },
       {
+        name:'users',
         path:'/users',
         component: Users
+      },
+      {
+        path: '/roles',
+        component: Welcome
       }
     ]
   }

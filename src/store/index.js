@@ -5,7 +5,8 @@ Vue.use(Vuex)
 const state = {
   token: '',
   username:'',
-  password:''
+  password:'',
+  activePath:''
 }
 export default new Vuex.Store({
   state,

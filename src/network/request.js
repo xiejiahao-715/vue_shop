@@ -19,3 +19,27 @@ export function get(config){
   })
   return instance(config);
 }
+
+export function put(config){
+  const instance = axios.create({
+    baseURL:'http://127.0.0.1:5000/api',
+    timeout: 5000
+  });
+  instance.interceptors.request.use(config=>{
+    config.headers.Authorization = window.sessionStorage.getItem('token')
+    return config;
+  })
+  return instance(config);
+}
+
+export function post(config){
+  const instance = axios.create({
+    baseURL:'http://127.0.0.1:5000/api',
+    timeout: 5000
+  });
+  instance.interceptors.request.use(config=>{
+    config.headers.Authorization = window.sessionStorage.getItem('token')
+    return config;
+  })
+  return instance(config);
+}

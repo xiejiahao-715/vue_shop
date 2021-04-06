@@ -7,5 +7,8 @@ export default {
   },
   setToken(state,payload){
     state.token = payload;
+  },
+  setActivePath(state,payload){
+    state.activePath = payload
   }
 }
