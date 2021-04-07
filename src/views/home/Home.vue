@@ -9,13 +9,13 @@
       <el-button type="info" @click="logout">退出</el-button>
     </el-header>
     <!--页面主体区域-->
-    <el-container @breadcrumbClick="breadcrumbClick">
+    <el-container>
       <!--侧边栏-->
-      <Sidebar></Sidebar>
+      <sidebar></sidebar>
       <!--右侧内容主体-->
       <el-main>
         <!--路由的占位符-->
-        <keep-alive >
+        <keep-alive>
           <router-view></router-view>
         </keep-alive>
       </el-main>

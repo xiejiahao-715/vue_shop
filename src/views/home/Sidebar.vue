@@ -4,7 +4,7 @@
     <!--折叠按钮-->
     <div class="toggle-button" @click="toggleCollapse">|||</div>
     <el-menu
-        ref="sidebarRef"
+        ref="SidebarRef"
         :default-active="$store.state.activePath"
         router
         :collapse="isCollapse"
@@ -14,7 +14,7 @@
         text-color="#fff"
         active-text-color="#ffd04b">
       <!--一级菜单-->
-      <el-submenu :index="item.id + ''" v-for="item in menuList" :key="item.id">
+      <el-submenu :index="item.id+''" v-for="item in menuList" :key="item.id">
         <!--一级菜单的模板区域-->
         <template slot="title">
           <!--图标-->
@@ -51,6 +51,11 @@ export default {
         4: 'iconfont icon-danju',
         5: 'iconfont icon-baobiao'
       }
+    }
+  },
+  computed:{
+    activePath(){
+      return this.$store.state.activePath
     }
   },
   methods:{
@@ -103,7 +108,15 @@ export default {
   },
   created() {
     this.getMenuList();
-    this.activePath = window.sessionStorage.getItem('activePath');
+  },
+  watch:{
+    activePath(newActivePath){
+      if(newActivePath === "") {
+        // 关闭所有的一级菜单
+        for(let i of this.menuList)
+          this.$refs.SidebarRef.close(i.id+'');
+      }
+    }
   }
 }
 </script>

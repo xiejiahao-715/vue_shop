@@ -12,12 +12,12 @@
       <!--搜索与添加区域-->
       <el-row :gutter=20>
         <el-col :span="7">
-          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @clear="search">
+          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @keyup.enter.native="search">
             <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="dialogVisible=true">添加用户</el-button>
+          <el-button type="primary" @click="addDialogVisible=true">添加用户</el-button>
         </el-col>
       </el-row>
       <!-- 用户列表数据-->
@@ -35,9 +35,13 @@
         <el-table-column label="操作" width="180px">
           <template slot-scope="scope">
             <!--修改按钮-->
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+            <el-tooltip effect="light" content="修改信息" placement="top" :enterable="false">
+              <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
+            </el-tooltip>
             <!--删除按钮-->
-            <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+            <el-tooltip effect="light" content="删除用户" placement="top" :enterable="false">
+              <el-button type="danger" icon="el-icon-delete" size="mini" @click="removeUserById(scope.row.id)"></el-button>
+            </el-tooltip>
             <!--分配角色按钮-->
             <el-tooltip effect="light" content="分配角色" placement="top" :enterable="false">
               <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
@@ -60,9 +64,9 @@
     <!--添加用户对话框-->
     <el-dialog
         title="添加用户"
-        :visible.sync="dialogVisible"
+        :visible.sync="addDialogVisible"
         :close-on-click-modal="false"
-        @close="addDialogClosed"
+        @closed="addDialogClosed"
         width="50%">
       <!--内容主体区域-->
       <el-form
@@ -89,11 +93,12 @@
     </el-dialog>
 
     <!--修改用户的对话框-->
-    <el-dialog title="修改用户"
-               width="50%"
-               @close="editDialogClosed"
-               :close-on-click-modal="false"
-               :visible.sync="editDialogVisible">
+    <el-dialog
+        title="修改用户"
+        width="50%"
+        @closed="editDialogClosed"
+        :close-on-click-modal="false"
+        :visible.sync="editDialogVisible">
       <el-form :model="editForm" :rules="editFormRules" ref="editFormRef"
                label-width="70px">
         <el-form-item label="用户名">
@@ -111,6 +116,7 @@
         <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
+
   </div>
 </template>
 
@@ -139,6 +145,7 @@ export default {
         callback(new Error('请输入合法的手机号'));
       }
     };
+    // 返回的data数据
     return {
       // 获取用户列表的参数对象
       queryInfo:{
@@ -151,7 +158,7 @@ export default {
       userList:[],
       total: 0,
       // 控制添加用户对话框的显示与隐藏
-      dialogVisible: false,
+      addDialogVisible: false,
       // 添加用户的表单数据
       addForm: {
         username: '',
@@ -160,6 +167,7 @@ export default {
       },
       // 编辑用户的表单数据
       editForm:{
+        id: '',
         username: '',
         email: '',
         mobile: ''
@@ -168,7 +176,7 @@ export default {
       addFormRules: {
         username: [
           {required: true, message: '请输入用户名', trigger: 'blur'},
-          {min: 3,max: 10,message: '用户名的长度在3~10个字符之间'}
+          {min: 2,max: 10,message: '用户名的长度在2~10个字符之间'}
         ],
         email: [
           {required: true, message: '请输入邮箱', trigger: 'blur'},
@@ -200,7 +208,7 @@ export default {
     this.getUserList();
   },
   methods:{
-    // 当点击面包屑组件的首页文字时的事件
+    // 当点击面包屑组件的首页文字时的事件,用于vuex保存活跃的路由
     breadcrumbClick(){
       this.$store.commit('setActivePath','');
     },
@@ -255,10 +263,8 @@ export default {
       this.queryInfo.pageNum = 1;
       this.getUserList()
     },
-    // 监听添加用户对话框的关闭事件
-    addDialogClosed(){
-      this.$refs.addFormRef.resetFields();
-    },
+
+    // ---------------------------------添加用户的功能------------------------
     // 点击按钮添加新用户
     addUser(){
       this.$refs.addFormRef.validate(valid=>{
@@ -279,7 +285,7 @@ export default {
             this.$message({type:'error',center:true,duration:1000,message:'添加用户失败'});
           }
           this.loading = false;
-          this.dialogVisible = false;
+          this.addDialogVisible = false;
         }).catch(err=>{
           console.log(err);
           this.loading = false;
@@ -287,25 +293,92 @@ export default {
         })
       })
     },
+    // 监听添加用户对话框的关闭事件
+    addDialogClosed(){
+      this.$refs.addFormRef.resetFields();
+    },
+    // ---------------------------------------------------------------------
+
+    // ---------------------------------修改用户的功能------------------------
     // 展示编辑用户的对话框
     showEditDialog(user){
+      this.editForm.id = user.id;
       this.editForm.username = user.username;
       this.editForm.email = user.email;
       this.editForm.mobile = user.mobile;
       this.editDialogVisible = true;
     },
-    // 监听修改用户对话框的关闭事件
-    editDialogClosed(){
-    },
     // 编辑用户信息并提交
     editUser(){
       this.$refs.editFormRef.validate(valid=>{
         if (!valid) return;
-        this.editDialogVisible = false;
-        this.$message.success('修改成功');
+        post({
+          method: 'post',
+          url: '/edituser',
+          data:this.editForm
+        }).then(res=>{
+          if(res.data.status === true){
+            this.getUserList();
+            this.$message.success('修改信息成功');
+            this.editDialogVisible = false;
+          }
+          else{
+            this.$message.error('修改信息失败');
+          }
+        })
       })
+    },
+    // 监听修改用户对话框的关闭事件
+    editDialogClosed(){
+      for(let key in this.editForm){
+        this.editForm[key] = ""
+      }
+    },
+    // ---------------------------------------------------------------------
+
+    // ---------------------------------删除用户的功能------------------------
+    // 删除用户信息并提交
+    deleteUser(id){
+      post({
+        method: 'post',
+        url: '/deleteuser',
+        data: {
+          id: id
+        }
+      }).then(res=>{
+        if(res.data.status === true){
+          this.getUserList();
+          this.$message.success('删除用户成功');
+        }
+        else{
+          this.$message.error('删除用户失败');
+        }
+      })
+    },
+    // 根据ID删除对应的用户
+    removeUserById(id){
+      this.$confirm('此操作将永久删除该用户的数据，是否继续?','提示',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(()=>{
+        this.deleteUser(id)
+      }).catch(()=>{this.$message.error('成功取消删除用户的操作');})
     }
+    // ---------------------------------------------------------------------
   },
+  watch:{
+    // 深度监听
+    'queryInfo.query':{
+      handler(newValue){
+        if(newValue === ''){
+          this.search();
+        }
+      },
+      immediate: true
+    }
+  }
 }
 </script>
 
