@@ -45,11 +45,11 @@ export default {
       isCollapse: false,
       menuList:[],
       iconsObj:{
-        1: 'iconfont icon-users',
-        2: 'iconfont icon-tijikongjian',
-        3: 'iconfont icon-shangpin',
-        4: 'iconfont icon-danju',
-        5: 'iconfont icon-baobiao'
+        125: 'iconfont icon-users',
+        103: 'iconfont icon-tijikongjian',
+        101: 'iconfont icon-shangpin',
+        102: 'iconfont icon-danju',
+        145: 'iconfont icon-baobiao'
       }
     }
   },
@@ -64,37 +64,26 @@ export default {
       this.$store.commit('setUsername','');
       this.$store.commit('setPassword','');
       this.$store.commit('setToken','');
+      this.$store.commit('setActivePath','');
     },
     getMenuList(){
       // 获取所有的菜单
       get({
-        method:'get',
-        url:'/menus'
+        url:'menus'
       }).then(res=>{
-        if(res.data.status === true){
-          this.menuList = res.data.menuList;
+        res = res.data;
+        if(res.meta.status === 200){
+          this.menuList = res.data;
         }
         else {
           this.clearDate();
           this.$router.push('/login');
-          this.$message({
-            showClose: true,
-            type:'error',
-            message:'登录状态异常，请重新登录',
-            center: true,
-            duration: 1000
-          })
+          this.$message({showClose: true, type:'error', message:'登录状态异常，请重新登录', center: true, duration: 1000})
         }
       }).catch(()=>{
         this.clearDate();
         this.$router.push('/login');
-        this.$message({
-          showClose: true,
-          type:'error',
-          message:'请求服务器失败,请重新登录',
-          center: true,
-          duration: 1000
-        })
+        this.$message({showClose: true, type:'error', message:'请求服务器失败,请重新登录', center: true, duration: 1000})
       })
     },
     // 点击按钮，切换菜单的折叠与展开

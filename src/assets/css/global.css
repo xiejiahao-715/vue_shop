@@ -3,13 +3,14 @@ html,body,#app{
     height: 100%;
     margin: 0;
     padding: 0;
+    min-width: 1366px;
 }
 
 /* element ui的样式（重置默认样式）*/
 .login_form .el-input__inner{
-   font-size: 25px;
-   height: 50px;
-   line-height: 50px;
+    font-size: 25px;
+    height: 50px;
+    line-height: 50px;
 }
 .login_form .el-button{
     font-size: 25px;
@@ -17,17 +18,17 @@ html,body,#app{
 .login_form .el-form-item__error{
     font-size: 15px;
 }
-.users .el-breadcrumb{
+.el-breadcrumb{
     margin-bottom: 15px;
-    font-size: 12px;
+    font-size: 16px;
 }
-.users .el-card{
+.el-card{
     box-shadow: 0 1px 1px rgba(0,0,0,0.15);
 }
-.users .el-table{
+.el-table{
     margin-top: 15px;
     font-size: 15px;
 }
-.users .el-pagination{
+.el-pagination{
     margin-top: 15px;
 }

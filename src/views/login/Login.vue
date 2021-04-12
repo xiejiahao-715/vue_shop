@@ -27,15 +27,15 @@
 </template>
 
 <script>
-import {postLogin} from '@/network/request'
+import {Login} from '@/network/request'
 export default {
   name: "Login",
   data(){
     return {
       // 这是登陆表单的数据绑定对象
       loginForm:{
-        username: '1910300212',
-        password: '155116'
+        username: 'admin',
+        password: '123456'
       },
       // 表单的验证规则对象
       loginFormRules:{
@@ -62,19 +62,13 @@ export default {
       this.$refs.loginFormRef.validate(valid=>{
         if(!valid) return;
         this.loading = true;
-        postLogin({
-          method: "post",
-          url: '/login',
+        Login({
+          url: 'login',
           data:this.loginForm
         }).then(res=>{
-          if(res.data.status === true){
-            this.$message({
-              showClose: true,
-              message:"登录成功",
-              type:'success',
-              center: true,
-              duration:1000
-            });
+          res = res.data;
+          if(res.meta.status === 200){
+            this.$message({showClose: true, message:"登录成功", type:'success', center: true, duration:1000});
             window.sessionStorage.setItem('token',res.data.token);
             this.$store.commit('setUsername',this.loginForm.username);
             this.$store.commit('setPassword',this.loginForm.password);
@@ -82,24 +76,11 @@ export default {
             this.$router.push('/home');
           }
           else{
-            this.$message({
-              showClose: true,
-              message:"用户名或密码错误",
-              type:'error',
-              center:true,
-              duration:1000
-            });
+            this.$message({showClose: true, message:"用户名或密码错误", type:'error', center:true, duration:1000});
             this.loading = false;
           }
-        }).catch(err=>{
-          this.$message({
-            showClose: true,
-            message:"请求服务器失败",
-            type:'error',
-            center:true,
-            duration:1000
-          });
-          console.log(err);
+        }).catch(()=>{
+          this.$message({showClose: true, message:"请求服务器失败", type:'error', center:true, duration:1000});
           this.loading = false;
         })
       })
@@ -157,4 +138,5 @@ export default {
   flex-direction:row;
   justify-content:center;
 }
+
 </style>
