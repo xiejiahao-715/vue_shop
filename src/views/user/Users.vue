@@ -1,8 +1,9 @@
 <template>
-  <div class="users">
+  <div>
     <!--面包屑导航区域-->
+    <!--当点击面包屑组件的首页文字时的事件,用于vuex保存活跃的路由-->
     <el-breadcrumb separator-class="el-icon-arrow-right">
-      <el-breadcrumb-item :to="{ path: '/welcome' }" @click.native="breadcrumbClick">首页</el-breadcrumb-item>
+      <el-breadcrumb-item :to="{ path: '/welcome' }" @click.native="$store.commit('setActivePath','')">首页</el-breadcrumb-item>
       <el-breadcrumb-item>用户管理</el-breadcrumb-item>
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
     </el-breadcrumb>
@@ -12,7 +13,7 @@
       <!--搜索与添加区域-->
       <el-row :gutter=20>
         <el-col :span="7">
-          <el-input placeholder="请输入内容" v-model="queryInfo.query" clearable @keyup.enter.native="search">
+          <el-input placeholder="请输入待查询的用户名" v-model="queryInfo.query" clearable @keyup.enter.native="search">
             <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
           </el-input>
         </el-col>
@@ -27,9 +28,9 @@
         <el-table-column label="邮箱" prop="email"></el-table-column>
         <el-table-column label="电话" prop="mobile"></el-table-column>
         <el-table-column label="角色" prop="role_name"></el-table-column>
-        <el-table-column label="状态" prop="state">
+        <el-table-column label="状态" prop="mg_state">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.state" @change="userStateChanged(scope.row)"></el-switch>
+            <el-switch v-model="scope.row.mg_state" @change="userStateChanged(scope.row)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180px">
@@ -53,9 +54,9 @@
       <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="queryInfo.pageNum"
+          :current-page="queryInfo.pagenum"
           :page-sizes="[1, 2, 5, 10]"
-          :page-size="queryInfo.pageSize"
+          :page-size="queryInfo.pagesize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total">
       </el-pagination>
@@ -77,6 +78,9 @@
           label-width="70px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="addForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addForm.password"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="addForm.email"></el-input>
@@ -121,13 +125,13 @@
 </template>
 
 <script>
-import {get,put,post} from '@/network/request'
+import {get,put,post,Delete} from '@/network/request'
 export default {
   name: "Users",
   data(){
     // 验证邮箱的规制
     const checkEmail = (rule, value, callback)=>{
-      const regEmail = /^([a-zA-Z]|[0-9])(\w|-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
       if(regEmail.test(value)){
         return callback()
       }
@@ -137,7 +141,7 @@ export default {
     };
     // 验证手机号的规则
     const checkMobile = (rule, value, callback)=>{
-      const regMobile = /^[1][3,4,5,7,8][0-9]{9}$/
+      const regMobile =  /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/
       if(regMobile.test(value)){
         return callback();
       }
@@ -151,9 +155,9 @@ export default {
       queryInfo:{
         query:'',
         // 当前的页数
-        pageNum: 1,
+        pagenum: 1,
         // 当前每页显示多少条数据
-        pageSize: 10
+        pagesize: 10
       },
       userList:[],
       total: 0,
@@ -162,6 +166,7 @@ export default {
       // 添加用户的表单数据
       addForm: {
         username: '',
+        password:'',
         email: '',
         mobile: ''
       },
@@ -176,7 +181,7 @@ export default {
       addFormRules: {
         username: [
           {required: true, message: '请输入用户名', trigger: 'blur'},
-          {min: 2,max: 10,message: '用户名的长度在2~10个字符之间'}
+          {min: 1,max: 10,message: '用户名的长度在1~10个字符之间'}
         ],
         email: [
           {required: true, message: '请输入邮箱', trigger: 'blur'},
@@ -185,7 +190,11 @@ export default {
         mobile: [
           {required: true, message: '请输入邮箱', trigger: 'blur'},
           {validator: checkMobile,trigger: 'blur'}
-        ]
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          {min: 6, max: 15, message: '用户名的长度在6~15个字符之间', trigger: 'blur'}
+        ],
       },
       // 编辑表单的验证规则对象
       editFormRules:{
@@ -208,18 +217,14 @@ export default {
     this.getUserList();
   },
   methods:{
-    // 当点击面包屑组件的首页文字时的事件,用于vuex保存活跃的路由
-    breadcrumbClick(){
-      this.$store.commit('setActivePath','');
-    },
     getUserList(){
       get({
         url:'/users',
-        method: 'get',
         params:this.queryInfo
       }).then(res=>{
-        if(res.data.status === true){
-          this.userList = res.data.userList;
+        res = res.data;
+        if(res.meta.status === 200){
+          this.userList = res.data.users;
           this.total = res.data.total;
         }
       })
@@ -227,40 +232,36 @@ export default {
     // 监听 page-size改变的事件  每个页面存放的数据条数
     handleSizeChange(newSize){
       // console.log(newSize);
-      this.queryInfo.pageSize = newSize;
+      this.queryInfo.pagesize = newSize;
       this.getUserList()
     },
     // 监听 页码值 改变的事件
     handleCurrentChange(newPage){
        // console.log(newPage)
-      this.queryInfo.pageNum =newPage;
+      this.queryInfo.pagenum =newPage;
       this.getUserList()
     },
     // 监听switch开关的变化
     userStateChanged(userInfo){
       // 使用put请求调用后端接口，来改变数据库中的信息
       put({
-        method: 'put',
-        url: '/state',
-        params:{
-          'id': userInfo.id,
-          'state': userInfo.state
-        }
+        url: `users/${userInfo.id}/state/${userInfo.mg_state}`,
       }).then(res=>{
-        if(res.data.status === true){
+        res = res.data;
+        if(res.meta.status === 200){
           // 修改成功
-          this.$message({type: 'success',message:'修改用户状态成功',center:true,duration:1000})
+          this.$message({type: 'success',message:'修改用户状态成功',center:true,duration:1000,showClose: true})
         }
         else{
           // 修改失败
-          userInfo.state = !userInfo.state
-          this.$message({type: 'error',message:'修改用户状态失败',center:true,duration:1000})
+          userInfo.mg_state = !userInfo.mg_state;
+          this.$message({type: 'error',message:'修改用户状态失败',center:true,duration:1000,showClose: true})
         }
       })
     },
     // 搜索按钮的使用
     search(){
-      this.queryInfo.pageNum = 1;
+      this.queryInfo.pagenum = 1;
       this.getUserList()
     },
 
@@ -273,23 +274,23 @@ export default {
         this.loading = true;
         // 可以发起添加用户的网络请求
         post({
-          method:'post',
           data: this.addForm,
-          url: '/adduser'
+          url: 'users'
         }).then(res=>{
-          if(res.data.status === true){
+          res = res.data;
+          if(res.meta.status === 201){
             this.getUserList()
-            this.$message({type:'success',center:true,duration:1000,message:'添加用户成功'});
+            this.$message({type:'success',center:true,duration:1000,message:'添加用户成功',showClose: true});
           }
           else{
-            this.$message({type:'error',center:true,duration:1000,message:'添加用户失败'});
+            this.$message({type:'error',center:true,duration:1000,message:'添加用户失败',showClose: true});
           }
           this.loading = false;
           this.addDialogVisible = false;
         }).catch(err=>{
           console.log(err);
           this.loading = false;
-          this.$message({type:'error',center:true,duration:1000,message:'无网络连接'});
+          this.$message({type:'error',center:true,duration:1000,message:'无网络连接',showClose: true});
         })
       })
     },
@@ -312,18 +313,21 @@ export default {
     editUser(){
       this.$refs.editFormRef.validate(valid=>{
         if (!valid) return;
-        post({
-          method: 'post',
-          url: '/edituser',
-          data:this.editForm
+        put({
+          url: `users/${this.editForm.id}`,
+          data:{
+            email: this.editForm.email,
+            mobile: this.editForm.mobile
+          }
         }).then(res=>{
-          if(res.data.status === true){
+          res = res.data;
+          if(res.meta.status === 200){
             this.getUserList();
-            this.$message.success('修改信息成功');
+            this.$message({type:'success',center:true,duration:1000,message:'修改信息成功',showClose: true});
             this.editDialogVisible = false;
           }
           else{
-            this.$message.error('修改信息失败');
+            this.$message({type:'error',center:true,duration:1000,message:'修改信息失败',showClose: true});
           }
         })
       })
@@ -339,19 +343,17 @@ export default {
     // ---------------------------------删除用户的功能------------------------
     // 删除用户信息并提交
     deleteUser(id){
-      post({
-        method: 'post',
-        url: '/deleteuser',
-        data: {
-          id: id
-        }
+      Delete({
+        url: `users/${id}`,
       }).then(res=>{
-        if(res.data.status === true){
+        res = res.data;
+        if(res.meta.status === 200){
           this.getUserList();
-          this.$message.success('删除用户成功');
+          this.queryInfo.pagenum = 1;
+          this.$message({type:'success',center:true,duration:1000,message:'删除用户成功',showClose: true});
         }
         else{
-          this.$message.error('删除用户失败');
+          this.$message({type:'error',center:true,duration:1000,message:'删除用户失败',showClose: true});
         }
       })
     },
@@ -364,7 +366,7 @@ export default {
             type: 'warning'
           }).then(()=>{
         this.deleteUser(id)
-      }).catch(()=>{this.$message.error('成功取消删除用户的操作');})
+      }).catch(()=>{this.$message({type:'error',center:true,duration:1000,message:'成功取消删除用户操作',showClose: true});})
     }
     // ---------------------------------------------------------------------
   },

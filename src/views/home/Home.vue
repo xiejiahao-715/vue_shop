@@ -36,16 +36,12 @@ export default {
       this.$store.commit('setUsername','');
       this.$store.commit('setPassword','');
       this.$store.commit('setToken','');
+      this.$store.commit('setActivePath','');
     },
     logout() {
       this.clearDate();
       this.$router.push('/login');
-      this.$message({
-        type: 'success',
-        center: 'true',
-        message: '退出成功',
-        duration: 1000
-      })
+      this.$message({showClose: true,type: 'success', center: true, message: '退出成功', duration: 1000})
     },
   },
   components:{
@@ -56,6 +52,8 @@ export default {
 
 <style scoped lang="less">
 .el-container{
+  // 隐藏右边滚动条
+  overflow-x: hidden;
   height: 100%;
 }
 .el-header{
