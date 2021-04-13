@@ -390,20 +390,18 @@ export default {
       })
     },
     // 根据ID删除对应的用户
-    removeUserById(id){
-      this.$confirm('此操作将永久删除该用户的数据，是否继续?','提示',
+    removeUserById(id) {
+      this.$confirm('此操作将永久删除该用户的数据，是否继续?', '提示',
           {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
-          }).then(()=>{
+          }).then(() => {
         this.deleteUser(id)
-      }).catch(()=>{this.$message({type:'error',center:true,duration:1000,message:'成功取消删除用户操作',showClose: true});})
-<<<<<<< HEAD
+      }).catch(() => {
+        this.$message({type: 'error', center: true, duration: 1000, message: '成功取消删除用户操作', showClose: true});
+      })
     },
-=======
-    }
->>>>>>> cc2d921b7f5e1a5b4cabaa3860a3064f84774497
     // ---------------------------------------------------------------------
 
     // 展示分配角色的对话框
