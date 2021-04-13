@@ -399,7 +399,11 @@ export default {
           }).then(()=>{
         this.deleteUser(id)
       }).catch(()=>{this.$message({type:'error',center:true,duration:1000,message:'成功取消删除用户操作',showClose: true});})
+<<<<<<< HEAD
     },
+=======
+    }
+>>>>>>> cc2d921b7f5e1a5b4cabaa3860a3064f84774497
     // ---------------------------------------------------------------------
 
     // 展示分配角色的对话框
