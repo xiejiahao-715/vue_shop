@@ -4,6 +4,7 @@ import router from './router'
 import store from './store'
 import '@/plugins/element.js'
 import '@/plugins/uploader'
+import '@/plugins/tree-table'
 
 //导入字体图标
 import '@/assets/font/iconfont.css'

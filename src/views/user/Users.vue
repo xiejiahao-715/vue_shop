@@ -34,7 +34,7 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="180px">
-          <template slot-scope="scope">
+          <template #default="scope">
             <!--修改按钮-->
             <el-tooltip effect="light" content="修改信息" placement="top" :enterable="false">
               <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row)"></el-button>
@@ -91,7 +91,7 @@
       </el-form>
       <!--底部区域-->
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="addDialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="addUser">确 定</el-button>
       </span>
     </el-dialog>
@@ -375,13 +375,16 @@ export default {
     // ---------------------------------删除用户的功能------------------------
     // 删除用户信息并提交
     deleteUser(id){
+      // 当前页面显示的用户的数量
+      let userNumber = this.userList.length;
       Delete({
         url: `users/${id}`,
       }).then(res=>{
         res = res.data;
         if(res.meta.status === 200){
+          if(userNumber<=1 && this.queryInfo.pagenum >1)
+            this.queryInfo.pagenum--;
           this.getUserList();
-          this.queryInfo.pagenum = 1;
           this.$message({type:'success',center:true,duration:1000,message:'删除用户成功',showClose: true});
         }
         else{
