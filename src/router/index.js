@@ -10,6 +10,7 @@ const Users = ()=>import('@/views/user/Users')
 const Rights = ()=>import('@/views/power/Rights')
 const Roles = ()=>import('@/views/power/Roles')
 const Categories = ()=>import('@/views/good/Categories')
+const Params = ()=>import('@/views/good/Params')
 const routes = [
   {
     path:'/',
@@ -43,6 +44,10 @@ const routes = [
       {
         path: '/categories',
         component: Categories
+      },
+      {
+        path: '/params',
+        component: Params
       }
     ]
   }

@@ -142,6 +142,7 @@ export default {
         label: 'cat_name',
         children:'children',
         expandTrigger: 'hover',
+        // 只有点击选项上的圆圈才能算是选择上
         checkStrictly: true
       },
       // 选中的父级分类的Id数组
