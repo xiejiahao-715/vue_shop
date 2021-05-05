@@ -15,7 +15,7 @@
       <!--右侧内容主体-->
       <el-main>
         <!--路由的占位符-->
-        <keep-alive>
+        <keep-alive exclude="Add">
           <router-view></router-view>
         </keep-alive>
       </el-main>

@@ -55,7 +55,7 @@ export default {
   },
   computed:{
     activePath(){
-      return this.$store.state.activePath
+      return this.$store.state.activePath;
     }
   },
   methods:{
