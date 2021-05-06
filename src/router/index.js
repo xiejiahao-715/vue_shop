@@ -13,6 +13,7 @@ const Categories = ()=>import('@/views/good/Categories')
 const Params = ()=>import('@/views/good/Params')
 const List = ()=>import('@/views/good/List')
 const Add = ()=>import('@/views/good/Add')
+const Orders = ()=>import('@/views/order/Orders')
 const routes = [
   {
     path:'/',
@@ -59,6 +60,10 @@ const routes = [
         name: 'Add',
         path: '/goods/add',
         component: Add
+      },
+      {
+        path: '/orders',
+        component: Orders
       }
     ]
   }

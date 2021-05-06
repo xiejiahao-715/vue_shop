@@ -14,6 +14,19 @@ import '@/assets/css/global.css'
 
 Vue.config.productionTip = false
 
+// 全局过滤器
+Vue.filter('dateFormat',function (originVal){
+  const date = new Date(originVal);
+  // 获取年月日时分秒，不足两位高位填0
+  const year = date.getFullYear();
+  const month = (date.getMonth()+ 1 + '').padStart(2,'0');
+  const day = (date.getDate() + '').padStart(2,'0');
+  const hour = (date.getHours()+'').padStart(2,'0');
+  const minute = (date.getMinutes()+ '').padStart(2,'0');
+  const second = (date.getSeconds()+ '').padStart(2,'0');
+  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+})
+
 new Vue({
   router,
   store,

@@ -125,20 +125,6 @@ export default {
       this.$router.push('/goods/add');
     }
   },
-  filters:{
-    // 将秒切换为实际时间的过滤器
-    dateFormat(originVal){
-      const date = new Date(originVal);
-      // 获取年月日时分秒，不足两位高位填0
-      const year = date.getFullYear();
-      const month = (date.getMonth()+ 1 + '').padStart(2,'0');
-      const day = (date.getDate() + '').padStart(2,'0');
-      const hour = (date.getHours()+'').padStart(2,'0');
-      const minute = (date.getMinutes()+ '').padStart(2,'0');
-      const second = (date.getSeconds()+ '').padStart(2,'0');
-      return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-    }
-  },
   watch:{
     'queryInfo.query':{
       handler(newValue,oldValue){
